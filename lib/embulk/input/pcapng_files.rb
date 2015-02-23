@@ -1,10 +1,10 @@
-require "csv"
 
 module Embulk
-  module Input
+  module Plugin
+    require "csv"
 
-    class PcapngFilesInputPlugin < InputPlugin
-      Plugin.register_input("pcapng-files", self)
+    class InputPcapngFiles < InputPlugin
+      Plugin.register_input("pcapng_files", self)
 
       def self.transaction(config, &control)
         task = {
