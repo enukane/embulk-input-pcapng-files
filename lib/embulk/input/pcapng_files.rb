@@ -87,7 +87,11 @@ module Embulk
         options = build_options(fields)
         io = IO.popen("tshark -E separator=, #{options} -T fields -r #{path}")
         while line = io.gets
-          array = [fields, CSV.parse(line).flatten].transpose
+          begin
+            array = [fields, CSV.parse(line).flatten].transpose
+          rescue
+            next
+          end
           yield(Hash[*array.flatten])
         end
         io.close
