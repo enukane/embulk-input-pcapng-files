@@ -65,7 +65,13 @@ module Embulk
       def convert val, type
         v = val
         v = "" if val == nil
-        v = v.to_i if type == :long
+        if type == :long
+          if v.is_a?(String) and v.match(/^0x[0-9a-fA-F]+$/)
+            v = v.hex
+          else
+            v = v.to_i
+          end
+        end
         return v
       end
 
