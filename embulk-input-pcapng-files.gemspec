@@ -1,7 +1,7 @@
 
 Gem::Specification.new do |spec|
   spec.name          = "embulk-input-pcapng-files"
-  spec.version       = "0.1.1"
+  spec.version       = "0.1.2"
   spec.authors       = ["enukane"]
   spec.summary       = "Pcapng Files input plugin for Embulk"
   spec.description   = "Pcapng Files input plugin for Embulk"
