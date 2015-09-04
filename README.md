@@ -16,7 +16,7 @@ Obsoletes enukane/embulk-plugin-input-pcapng-files
 
 |name|type|required?|default|description|
 |:---|:---|:--------|:------|:----------|
-| paths | string | required | [] | paths where pcapng files exist (no recursive searching|
+| paths | array | required | [] | paths where pcapng files exist (no recursive searching|
 | convertdot | string | optional | nil | convert "." in field name (for outputing into DB who doesn't accept "dot" in schema)|
 | schema| array of field hash | required | nil | list of field to extract from pcapng file |
 |field hash| hash ({name, type}) | required | nil | "name" matches field name for tshakr (-e), "type" should be "long", "double", "string" |
