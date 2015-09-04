@@ -10,10 +10,11 @@ module Embulk
         task = {
           'paths' => [],
           'done' => config.param('done', :array, default: []),
+          'convertdot' => config.param('convertdot', :string, default: nil),
         }
 
         task['paths'] = config.param('paths', :array, default: []).map {|path|
-          next [] unless Dir.exists?(path)
+          next [] unless Dir.exist?(path)
           Dir.entries(path).sort.select {|entry| entry.match(/^.+\.pcapng$/)}.map {|entry|
             path + "/" + entry
           }
@@ -30,7 +31,9 @@ module Embulk
         idx = 0
         columns.concat schema.map{|c|
           idx += 1
-          Column.new(idx, "#{c['name']}", c['type'].to_sym)
+          name = c['name']
+          name = name.gsub(".", task['convertdot']) if task['convertdot'] != nil # convert dot
+          Column.new(idx, "#{name}", c['type'].to_sym)
         }
 
         commit_reports = yield(task, columns, task['paths'].length)
@@ -65,12 +68,15 @@ module Embulk
       def convert val, type
         v = val
         v = "" if val == nil
-        if type == :long
+        case type
+        when :long
           if v.is_a?(String) and v.match(/^0x[0-9a-fA-F]+$/)
             v = v.hex
           else
             v = v.to_i
           end
+        when :double
+          v = v.to_f
         end
         return v
       end
@@ -78,6 +84,7 @@ module Embulk
       def build_options(fields)
         options = ""
         fields.each do |field|
+          field = field.gsub(task['convertdot'], '.') if task['convertdot'] != nil # put converted back to dot for tshark
           options += "-e \"#{field}\" "
         end
         return options
@@ -96,15 +103,6 @@ module Embulk
         end
         io.close
       end
-
-      def fetch_from_pcap(path, fields)
-        options = build_options(fields)
-        io = IO.popen("tshark -E separator=, #{options} -T fields -r #{path}")
-        data = io.read
-        io.close
-        return data
-      end
-
     end
   end
 end
