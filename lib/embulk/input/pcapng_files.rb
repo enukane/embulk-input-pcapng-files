@@ -2,6 +2,7 @@
 module Embulk
   module Plugin
     require "csv"
+    require "time"
 
     class InputPcapngFiles < InputPlugin
       Plugin.register_input("pcapng_files", self)
@@ -11,6 +12,7 @@ module Embulk
           'paths' => [],
           'done' => config.param('done', :array, default: []),
           'convertdot' => config.param('convertdot', :string, default: nil),
+          'use_basename' => config.param('use_basename', :bool, default: false),
         }
 
         task['paths'] = config.param('paths', :array, default: []).map {|path|
@@ -53,7 +55,9 @@ module Embulk
       def run
         path = task['paths'][@index]
         each_packet(path, schema[1..-1].map{|elm| elm.name}) do |hash|
-          entry = [ path ] + schema[1..-1].map {|c|
+          entry = []
+          entry << (task['use_basename'] ? File.basename(path, File.extname(path)) : path)
+          entry += schema[1..-1].map {|c|
             convert(hash[c.name], c.type)
           }
           @page_builder.add(entry)
@@ -77,6 +81,8 @@ module Embulk
           end
         when :double
           v = v.to_f
+        when :timestamp
+          v = Time.at(v.to_f)
         end
         return v
       end

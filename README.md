@@ -18,8 +18,9 @@ Obsoletes enukane/embulk-plugin-input-pcapng-files
 |:---|:---|:--------|:------|:----------|
 | paths | array | required | [] | paths where pcapng files exist (no recursive searching|
 | convertdot | string | optional | nil | convert "." in field name (for outputing into DB who doesn't accept "dot" in schema)|
+| use\_basename | bool | optional | false | use basename (w/o ext) as "path" value |
 | schema| array of field hash | required | nil | list of field to extract from pcapng file |
-|field hash| hash ({name, type}) | required | nil | "name" matches field name for tshakr (-e), "type" should be "long", "double", "string" |
+|field hash| hash ({name, type}) | required | nil | "name" matches field name for tshakr (-e), "type" should be "long", "double", "string", "timestamp" |
 
 ## Example
 
@@ -31,7 +32,7 @@ in:
   threads: 2
   schema:
     - { name: frame.number,                 type: long }
-    - { name: frame.time_epoch,             type: double }
+    - { name: frame.time_epoch,             type: timestamp }
     - { name: frame.len,                    type: long }
     - { name: wlan_mgt.ssid,                type: string }
 ```
